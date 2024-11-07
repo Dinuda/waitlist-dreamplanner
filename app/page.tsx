@@ -12,6 +12,10 @@ import Footer from "@/components/footer";
 export default function Home() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
+  const [university, setUniversity] = useState<string>("");
+  const [faculty, setFaculty] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,13 +26,29 @@ export default function Home() {
     setName(event.target.value);
   };
 
+  const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(event.target.value);
+  };
+
+  const handleGenderChange = (value: string) => {
+    setGender(value);
+  };
+
+  const handleUniversityChange = (value: string) => {
+    setUniversity(value);
+  };
+
+  const handleFacultyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFaculty(event.target.value);
+  };
+
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
   const handleSubmit = async () => {
-    if (!name || !email) {
+    if (!name || !email || !phone || !gender || !university || !faculty) {
       toast.error("Please fill in all fields 😠");
       return;
     }
@@ -43,23 +63,23 @@ export default function Home() {
     const promise = new Promise(async (resolve, reject) => {
       try {
         // First, attempt to send the email
-        const mailResponse = await fetch("/api/mail", {
-          cache: "no-store",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ firstname: name, email }),
-        });
+        // const mailResponse = await fetch("/api/mail", {
+        //   cache: "no-store",
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({ firstname: name, email }),
+        // });
 
-        if (!mailResponse.ok) {
-          if (mailResponse.status === 429) {
-            reject("Rate limited");
-          } else {
-            reject("Email sending failed");
-          }
-          return; // Exit the promise early if mail sending fails
-        }
+        // if (!mailResponse.ok) {
+        //   if (mailResponse.status === 429) {
+        //     reject("Rate limited");
+        //   } else {
+        //     reject("Email sending failed");
+        //   }
+        //   return; // Exit the promise early if mail sending fails
+        // }
 
         // If email sending is successful, proceed to insert into Notion
         const notionResponse = await fetch("/api/notion", {
@@ -67,7 +87,7 @@ export default function Home() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name, email }),
+          body: JSON.stringify({ name, email, phone, gender, university, faculty }),
         });
 
         if (!notionResponse.ok) {
@@ -89,6 +109,10 @@ export default function Home() {
       success: (data) => {
         setName("");
         setEmail("");
+        setPhone("");
+        setGender("");
+        setUniversity("");
+        setFaculty("");
         return "Thank you for joining the waitlist 🎉";
       },
       error: (error) => {
@@ -118,13 +142,19 @@ export default function Home() {
         <Form
           name={name}
           email={email}
+          phone={phone}
+          gender={gender}
+          university={university}
+          faculty={faculty}
           handleNameChange={handleNameChange}
           handleEmailChange={handleEmailChange}
+          handlePhoneChange={handlePhoneChange}
+          handleGenderChange={handleGenderChange}
+          handleUniversityChange={handleUniversityChange}
+          handleFacultyChange={handleFacultyChange}
           handleSubmit={handleSubmit}
           loading={loading}
         />
-
-        <Logos />
       </section>
 
       <Footer />

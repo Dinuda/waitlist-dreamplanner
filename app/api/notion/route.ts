@@ -7,20 +7,20 @@ export async function POST(request: Request) {
     const notion = new Client({ auth: process.env.NOTION_SECRET });
     const response = await notion.pages.create({
       parent: {
-        database_id: `${process.env.NOTION_DB}`,
+        database_id: process.env.NOTION_DB,
       },
       properties: {
         Email: {
-          title: [
+          rich_text: [
             {
+              type: "text",
               text: {
                 content: body?.email,
               },
             },
           ],
         },
-        "Name": {
-          type: "rich_text",
+        Name: {
           rich_text: [
             {
               type: "text",
@@ -30,15 +30,55 @@ export async function POST(request: Request) {
             },
           ],
         },
+        Phone: {
+          phone_number: body?.phone,
+        },
+        Gender: {
+          rich_text: [
+            {
+              type: "text",
+              text: {
+                content: body?.gender,
+              },
+            },
+          ],
+        },
+        University: {
+          rich_text: [
+            {
+              type: "text",
+              text: {
+                content: body?.university,
+              },
+            },
+          ],
+        },
+        Faculty: {
+          rich_text: [
+            {
+              type: "text",
+              text: {
+                content: body?.faculty,
+              },
+            },
+          ],
+        },
+        TimeStamp: {
+          rich_text: [
+            {
+              type: "text",
+              text: {
+                content: new Date().toISOString(),
+              },
+            },
+          ],
+        },
       },
     });
 
-    if (!response) {
-      throw new Error("Failed to add email to Notion");
-    }
-
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ success: false }, { status: 500 });
+    console.error("Error adding entry to Notion:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
